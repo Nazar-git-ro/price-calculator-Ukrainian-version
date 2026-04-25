@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Калькулятор ціни</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0e13;--surface:#13161e;--card:#1a1e28;--card2:#1f2433;--border:#272d3d;--accent:#f5c842;--accent2:#ff6b35;--green:#3dd68c;--red:#ff4d6d;--text:#e4e7f0;--muted:#6b7591;--muted2:#8a93b0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'Golos Text',sans-serif;min-height:100vh;padding:0 0 80px}
+.top-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 20px;position:sticky;top:0;z-index:100}
+.top-bar h1{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:900;color:var(--accent)}
+.top-bar p{font-size:11px;color:var(--muted);margin-top:2px}
+.section{padding:20px 16px 0}
+.section-title{font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.fixed-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
+.mini-field{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px}
+.mini-field label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:600}
+.mini-field .row{display:flex;align-items:center;gap:4px}
+.mini-field input{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:'Golos Text',sans-serif;font-size:17px;font-weight:700;width:100%;min-width:0}
+.mini-field .u{font-size:12px;color:var(--muted);white-space:nowrap}
+.fixed-total{text-align:right;font-size:12px;color:var(--muted2);margin-bottom:20px;padding:0 4px}
+.fixed-total strong{color:var(--accent2)}
+.divider{height:1px;background:var(--border);margin:0 16px}
+.products-header{display:flex;align-items:center;justify-content:space-between;padding:20px 16px 12px}
+.products-header .section-title{margin-bottom:0}
+#btn-add-product{display:flex;align-items:center;gap:6px;background:var(--accent);color:#0b0e13;border:none;border-radius:12px;padding:12px 20px;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;cursor:pointer;min-height:48px;touch-action:manipulation}
+#btn-add-product:active{opacity:.8}
+.products-list{padding:0 16px;display:flex;flex-direction:column;gap:14px}
+.product-card{background:var(--card);border:1px solid var(--border);border-left-width:3px;border-radius:16px;overflow:hidden;animation:slideIn .2s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.product-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--card2);border-bottom:1px solid var(--border);gap:10px}
+.pnw{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.product-num{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:900;border-radius:6px;padding:4px 8px;white-space:nowrap;flex-shrink:0}
+.product-name-input{background:none;border:none;outline:none;color:var(--text);font-family:'Golos Text',sans-serif;font-size:15px;font-weight:600;flex:1;min-width:0}
+.product-name-input::placeholder{color:var(--muted)}
+.btn-del{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0;touch-action:manipulation}
+.btn-del:active{background:rgba(255,77,109,.15);color:var(--red)}
+.product-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border)}
+.p-field label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:600}
+.p-field .inp-row{display:flex;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.p-field input{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:'Golos Text',sans-serif;font-size:15px;font-weight:600;padding:10px;min-width:0;width:100%}
+.p-field .u{padding:0 8px;font-size:11px;color:var(--muted);border-left:1px solid var(--border);white-space:nowrap}
+.product-vol{padding:14px 16px;border-bottom:1px solid var(--border)}
+.product-vol label{display:block;font-size:11px;color:var(--muted);font-weight:600;margin-bottom:8px}
+.vol-display{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;color:var(--text);margin-bottom:8px}
+.vol-display span{font-size:11px;color:var(--muted);font-weight:400;font-family:'Golos Text',sans-serif;margin-left:4px}
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;background:var(--border);border-radius:3px;outline:none;cursor:pointer;margin-bottom:10px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--accent);border-radius:50%;cursor:pointer}
+.vol-input-row{display:flex;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.vol-input-row input{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:'Golos Text',sans-serif;font-size:15px;font-weight:600;padding:10px;min-width:0}
+.vol-input-row .u{padding:0 10px;font-size:11px;color:var(--muted);border-left:1px solid var(--border)}
+.product-result{padding:14px 16px;background:linear-gradient(135deg,rgba(61,214,140,.05),rgba(61,214,140,.01))}
+.result-label{font-size:11px;color:var(--muted);font-weight:600;margin-bottom:2px}
+.result-price{font-family:'Unbounded',sans-serif;font-size:36px;font-weight:900;color:var(--accent);line-height:1}
+.result-currency{font-size:14px;color:var(--accent);margin-bottom:10px}
+.result-rows{display:flex;flex-direction:column;gap:4px}
+.result-row{display:flex;justify-content:space-between;font-size:12px}
+.result-row .rl{color:var(--muted)}
+.result-row .rv{color:var(--muted2);font-weight:600}
+.result-row .rv.g{color:var(--green)}
+.summary{padding:20px 16px 0}
+.summary-card{background:linear-gradient(135deg,#1a2318,#181e2a);border:1px solid #2d4030;border-radius:16px;padding:20px}
+.summary-card h3{font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--green);margin-bottom:16px}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sum-item{background:rgba(255,255,255,.04);border-radius:10px;padding:12px}
+.sum-item .sl{font-size:11px;color:var(--muted);margin-bottom:3px}
+.sum-item .sv{font-family:'Unbounded',sans-serif;font-size:16px;font-weight:900;color:var(--text)}
+.sum-item .sv.accent{color:var(--accent)}
+.sum-item .sv.green{color:var(--green)}
+.sum-item .sv.orange{color:var(--accent2)}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-state .icon{font-size:40px;margin-bottom:10px}
+.empty-state p{font-size:14px}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>💰 Калькулятор ціни</h1>
+  <p>Постійні витрати розподіляються між товарами</p>
+</div>
+
+<div class="section">
+  <div class="section-title">🏪 Постійні витрати / місяць</div>
+  <div class="fixed-grid">
+    <div class="mini-field"><label>Оренда приміщення</label><div class="row"><input type="number" id="fc-rent" value="9000" min="0" inputmode="decimal"><span class="u">грн</span></div></div>
+    <div class="mini-field"><label>Оренда термінала</label><div class="row"><input type="number" id="fc-terminal" value="500" min="0" inputmode="decimal"><span class="u">грн</span></div></div>
+    <div class="mini-field"><label>Реклама</label><div class="row"><input type="number" id="fc-ads" value="8000" min="0" inputmode="decimal"><span class="u">грн</span></div></div>
+    <div class="mini-field"><label>Комісія банку</label><div class="row"><input type="number" id="fc-comm" value="1.3" min="0" step="0.1" inputmode="decimal"><span class="u">%</span></div></div>
+    <div class="mini-field"><label>Інші витрати</label><div class="row"><input type="number" id="fc-other" value="0" min="0" inputmode="decimal"><span class="u">грн</span></div></div>
+  </div>
+  <div class="fixed-total">Загальні витрати: <strong id="totalFixed">17 500 грн/міс</strong></div>
+</div>
+
+<div class="divider"></div>
+
+<div class="products-header">
+  <div class="section-title">📦 Товари</div>
+  <button id="btn-add-product">＋ Додати товар</button>
+</div>
+
+<div class="products-list" id="productsList">
+  <div class="empty-state" id="emptyState">
+    <div class="icon">📦</div>
+    <p>Натисніть "Додати товар" щоб почати</p>
+  </div>
+</div>
+
+<div class="summary" id="summaryWrap" style="display:none">
+  <div class="summary-card">
+    <h3>📊 Загальний підсумок</h3>
+    <div class="summary-grid">
+      <div class="sum-item"><div class="sl">Товарів</div><div class="sv accent" id="s-count">0</div></div>
+      <div class="sum-item"><div class="sl">Продажів/день</div><div class="sv" id="s-daily">0</div></div>
+      <div class="sum-item"><div class="sl">Постійні витрати</div><div class="sv orange" id="s-fixed">0 грн</div></div>
+      <div class="sum-item"><div class="sl">Прибуток/місяць</div><div class="sv green" id="s-profit">0 грн</div></div>
+      <div class="sum-item"><div class="sl">Продажів/місяць</div><div class="sv" id="s-monthly">0</div></div>
+      <div class="sum-item"><div class="sl">Виторг/місяць</div><div class="sv" id="s-revenue">0 грн</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+var products=[],nextId=1;
+var colors=['#f5c842','#3dd68c','#4d9fff','#ff6b35','#c084fc','#fb7185','#34d399','#fbbf24'];
+function g(id){return document.getElementById(id)}
+function fN(n){return(+n).toLocaleString('uk-UA',{minimumFractionDigits:0,maximumFractionDigits:2})}
+function fC(n){return Math.ceil(n).toLocaleString('uk-UA')}
+function f2(n){return Math.round(n*100)/100}
+function getFC(){return{rent:+g('fc-rent').value||0,terminal:+g('fc-terminal').value||0,ads:+g('fc-ads').value||0,comm:+g('fc-comm').value||0,other:+g('fc-other').value||0}}
+function tfAmt(fc){return fc.rent+fc.terminal+fc.ads+fc.other}
+function calcP(p,fc,tm){
+  var mo=p.perDay*30,tf=tfAmt(fc);
+  var fpu=tm>0?(tf*(mo/tm))/mo:0;
+  var bc=p.cost+p.markup+fpu;
+  var fp=bc*(1+fc.comm/100);
+  var ca=fp-bc,pr=p.markup-ca;
+  return{fpu:fpu,bc:bc,fp:fp,ca:ca,pr:pr,mp:pr*mo,rev:fp*mo,mo:mo}
+}
+function recalc(){
+  var fc=getFC(),tf=tfAmt(fc);
+  g('totalFixed').textContent=fN(tf)+' грн/міс';
+  var tm=products.reduce(function(s,p){return s+p.perDay*30},0);
+  var tp=0,tr=0,td=0;
+  products.forEach(function(p){
+    var r=calcP(p,fc,tm);
+    tp+=r.mp;tr+=r.rev;td+=p.perDay;
+    var e;
+    e=g('rp-'+p.id);if(e)e.textContent=fC(r.fp);
+    e=g('rb-'+p.id);if(e)e.textContent=fN(f2(p.cost+p.markup))+' грн';
+    e=g('rf-'+p.id);if(e)e.textContent=fN(f2(r.fpu))+' грн';
+    e=g('rc-'+p.id);if(e)e.textContent=fN(f2(r.ca))+' грн';
+    e=g('rpr-'+p.id);if(e)e.textContent=fN(Math.round(r.mp))+' грн';
+  });
+  if(products.length>0){
+    g('summaryWrap').style.display='block';
+    g('s-count').textContent=products.length;
+    g('s-daily').textContent=fN(td);
+    g('s-monthly').textContent=fN(tm);
+    g('s-fixed').textContent=fN(tf)+' грн';
+    g('s-profit').textContent=fN(Math.round(tp))+' грн';
+    g('s-revenue').textContent=fN(Math.round(tr))+' грн';
+  } else {g('summaryWrap').style.display='none'}
+}
+function updEmpty(){var es=g('emptyState');if(es)es.style.display=products.length===0?'block':'none'}
+function addProduct(){
+  var id=nextId++,color=colors[products.length%colors.length];
+  var p={id:id,name:'Товар '+id,cost:28,markup:10,perDay:100,color:color};
+  products.push(p);
+  var idx=products.length;
+  var card=document.createElement('div');
+  card.className='product-card';card.id='product-'+id;
+  card.style.borderLeftColor=color;
+  card.innerHTML='<div class="product-head"><div class="pnw"><div class="product-num" id="num-'+id+'" style="color:'+color+';background:'+color+'22">#'+idx+'</div><input class="product-name-input" type="text" placeholder="Назва товару" value="'+p.name+'" data-id="'+id+'" data-field="name"></div><button class="btn-del" data-del="'+id+'">✕</button></div><div class="product-fields"><div class="p-field"><label>Собівартість</label><div class="inp-row"><input type="number" value="28" min="0" inputmode="decimal" data-id="'+id+'" data-field="cost"><span class="u">грн</span></div></div><div class="p-field"><label>Націнка</label><div class="inp-row"><input type="number" value="10" min="0" inputmode="decimal" data-id="'+id+'" data-field="markup"><span class="u">грн</span></div></div></div><div class="product-vol"><label>Продажів на день</label><div class="vol-display" id="vd-'+id+'">100<span>шт/день</span></div><input type="range" min="1" max="1000" value="100" data-id="'+id+'" data-vol="slider"><div class="vol-input-row"><input type="number" id="vi-'+id+'" value="100" min="1" inputmode="decimal" data-id="'+id+'" data-vol="input"><span class="u">шт/день</span></div></div><div class="product-result"><div class="result-label">Ціна продажу</div><div class="result-price" id="rp-'+id+'">—</div><div class="result-currency">грн</div><div class="result-rows"><div class="result-row"><span class="rl">Собів. + нац.</span><span class="rv" id="rb-'+id+'">—</span></div><div class="result-row"><span class="rl">Пост. витрати</span><span class="rv" id="rf-'+id+'">—</span></div><div class="result-row"><span class="rl">Комісія банку</span><span class="rv" id="rc-'+id+'">—</span></div><div class="result-row"><span class="rl">Прибуток/міс</span><span class="rv g" id="rpr-'+id+'">—</span></div></div></div>';
+  g('productsList').appendChild(card);
+  recalc();updEmpty();
+}
+function removeProduct(id){
+  products=products.filter(function(p){return p.id!==id});
+  var el=g('product-'+id);
+  if(el){el.style.transition='opacity .2s';el.style.opacity='0';setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);products.forEach(function(p,i){var n=g('num-'+p.id);if(n)n.textContent='#'+(i+1)});recalc();updEmpty()},200)}
+}
+document.addEventListener('click',function(e){
+  if(e.target.id==='btn-add-product'||e.target.closest('#btn-add-product')){addProduct();return}
+  var d=e.target.closest('[data-del]');if(d){removeProduct(+d.getAttribute('data-del'))}
+});
+document.addEventListener('input',function(e){
+  var t=e.target;
+  if(['fc-rent','fc-terminal','fc-ads','fc-comm','fc-other'].indexOf(t.id)!==-1){recalc();return}
+  if(t.dataset.field&&t.dataset.id){
+    var p=products.find(function(x){return x.id===+t.dataset.id});
+    if(p){p[t.dataset.field]=t.dataset.field==='name'?t.value:(+t.value||0);recalc()}
+    return;
+  }
+  if(t.dataset.vol&&t.dataset.id){
+    var id=+t.dataset.id,val=Math.max(1,+t.value||1);
+    var p2=products.find(function(x){return x.id===id});
+    if(!p2)return;
+    p2.perDay=val;
+    var vd=g('vd-'+id);if(vd)vd.innerHTML=fN(val)+'<span>шт/день</span>';
+    var card=g('product-'+id);
+    if(card){
+      if(t.dataset.vol==='slider'){var vi=g('vi-'+id);if(vi)vi.value=val}
+      else{var sl=card.querySelector('input[type=range]');if(sl)sl.value=Math.min(1000,val)}
+    }
+    recalc();
+  }
+});
+addProduct();addProduct();
+})();
+</script>
+</body>
+</html>
